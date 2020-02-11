@@ -75,7 +75,6 @@ class ImageProcessing:
         target = Image.new('RGBA', (640, 640), (0, 0, 0, 0))
         # 贴上高斯模糊后的图片
         target.paste(self.gaussian_blur())
-        target.show()
 
         # 创建小图标的框架
         framework = Image.open('./data/framework.png').convert('L')
@@ -88,7 +87,6 @@ class ImageProcessing:
         target.paste(target_l,
                      (w // 2 - size // 2 - 15, w // 2 - size // 2 - 50 - 15),
                      target_l)
-        target.show()
 
         # 在原图中间 y-50 的位置贴上小图标
         target.paste(self.alpha_circle(),
