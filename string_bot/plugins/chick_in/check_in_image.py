@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
-import sqlite3
+from sql_exe import *
 import os
+
 
 class ImageProcessing:
     """
@@ -81,7 +82,6 @@ class ImageProcessing:
         framework = framework.resize((size + 30, size + 30))
         target_l = Image.new('RGBA', (size + 30, size + 30), (0, 0, 0, 0))
         target_l.putalpha(framework)
-        target_l.show()
 
         # 贴上小图标的框架
         target.paste(target_l,
@@ -114,20 +114,12 @@ class ImageProcessing:
 
             count += 1
 
-        coon = sqlite3.connect('./data/data.db')
-
-        cursor = coon.cursor()
-
         sql_select = (
             'SELECT tips FROM tips ORDER BY RANDOM() limit 1;'
         )
 
-        cursor.execute(sql_select)
-        values = str(cursor.fetchall()[0][0])
-
-        cursor.close()
-        coon.commit()
-        coon.close()
+        values = sql_exe(sql_select)
+        values = str(values[0][0])
 
         # 写入tips
         draw = ImageDraw.Draw(target)

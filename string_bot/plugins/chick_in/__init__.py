@@ -4,6 +4,7 @@ from .check_in_image import ImageProcessing
 from .data_source import get_image
 from shutil import copyfile
 import os
+
 __plugin_name__ = '签到'
 __plugin_usage__ = r"""签到服务
 
@@ -18,9 +19,9 @@ async def registered(session: CommandSession):
 
     if user_registration_interval_judgment(user_id):
         user_registration(session.ctx)
-        await session.send('注册成功!')
+        await session.send('注册成功!💃💃💃')
     else:
-        await session.send('您已经注册过了')
+        await session.send('您已经注册过了🙌')
 
 
 @cg.command('chick_in_cmd', aliases=['签到'])
@@ -34,7 +35,7 @@ async def chick_in_cmd(session: CommandSession):
 
             image = await get_image(uid)
 
-            card = session.ctx.get('sender').get('card')
+            card = session.ctx.get('sender').get('_card')
             if card:
                 text = chick_in_text(uid, card)
             else:
@@ -53,11 +54,11 @@ async def chick_in_cmd(session: CommandSession):
                 image.remove()
             else:
                 # 把这个文件复制到docker挂载的coolq的文件夹里才能识别到
-                copyfile('cache/'+ str(uid) + '.png', '/home/ubuntu/coolq-pro/data/'+ str(uid) + '.png')
-                await session.send('[CQ:image,file=file:///data/'+ str(uid) + '.png]')
+                copyfile('cache/' + str(uid) + '.png', '/home/ubuntu/coolq-pro/data/' + str(uid) + '.png')
+                await session.send('[CQ:image,file=file:///data/' + str(uid) + '.png]')
                 # await session.send('[CQ:image,file=file:///cache/'+ str(uid) + '.png]')
                 image.remove()
-                os.remove('/home/ubuntu/coolq-pro/data/'+ str(uid) + '.png')
+                os.remove('/home/ubuntu/coolq-pro/data/' + str(uid) + '.png')
         else:
             await session.send('您今天已经签到过了')
     except IndexError:
@@ -69,7 +70,10 @@ async def chick_in_check(session: CommandSession):
     user_id = session.ctx['sender']['user_id']
 
     try:
-        msg = get_chick_in_check(user_id)
+        if not check_in_interval_judgment(user_id):
+            msg = get_chick_in_check(user_id, '今日已签到✔')
+        else:
+            msg = get_chick_in_check(user_id, '今日未签到❌')
         await session.send(msg)
     except IndexError:
-        await session.send('您还没有注册')
+        await session.send('您还没有注册👀')
