@@ -10,14 +10,14 @@ from plugins.user_cmd import *
 import plugins.user_cmd
 
 sql_create = (
-    'CREATE TABLE draw('
+    'CREATE TABLE cmd('
     'id INTEGER PRIMARY KEY AUTOINCREMENT,'
     'user_id INT NOT NULL,'
     'user_nickname TEXT NOT NULL,'
     'user_card TEXT,'
     'group_id INT,'
     'Q TEXT NOT NULL,'
-    'A TEXT NOT NULL,'
+    'A TEXT NOT NULL'
     ');'
 )
 try:
