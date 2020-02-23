@@ -26,8 +26,6 @@ async def get_translate(content, app_key):
 
     resp = requests.get(url, params)
 
-    print(resp.json())
-
     return resp.json()['data']['target_text']
 
 

@@ -69,7 +69,7 @@ async def _():
         pass
 
 
-@nonebot.scheduler.scheduled_job('cron', day='*', hour='*', minute='*')
+@nonebot.scheduler.scheduled_job('cron', hour='0')
 async def _():
     sql = (
         'SELECT group_id, deadline FROM deadline;'
