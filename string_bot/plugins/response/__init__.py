@@ -1,7 +1,10 @@
 import datetime
+import sqlite3
 from sqlite3 import OperationalError
 
 from nonebot import CommandSession, CommandGroup
+from nonebot.permission import SUPERUSER
+
 from random import randint
 import time
 
@@ -40,16 +43,27 @@ async def response_robot(session: CommandSession):
         return
 
 
-@cg.command('init', aliases=['init'])
+@cg.command('init', aliases=['init'], permission=SUPERUSER)
 async def response_init(session: CommandSession):
     try:
+
+        sql = (
+            'CREATE TABLE subscription('
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            'group_id INT NOT NULL,'
+            'platform TEXT NOT NULL,'
+            'live_id INT NOT NULL'
+            ');'
+        )
+        sql_exe(sql)
+
         init_bot = session.bot
         init_group_id_list = await init_bot.get_group_list()
         init_now_date = time.time()
         init_now_date = timestamp2date_string(init_now_date)
         for init_group_id in init_group_id_list:
             sql_insert = (
-                'INSERT INTO deadline VALUES (NULL, ?, ?);'
+                'INSERT OR IGNORE INTO deadline VALUES (NULL, ?, ?);'
             )
             # +3天
             i_add_date = datetime.timedelta(days=3)
@@ -62,6 +76,44 @@ async def response_init(session: CommandSession):
             sql_exe(sql_insert, (init_group_id.get('group_id'), i_deadline))
     except OperationalError:
         pass
+
+    coon = sqlite3.connect(r'.\data\data.db')
+    cursor = coon.cursor()
+
+    sql = (
+        'select group_id, deadline from deadline;'
+    )
+    cursor.execute(sql)
+
+    values = cursor.fetchall()
+
+    sql_drop = (
+        'DROP TABLE deadline;'
+    )
+    cursor.execute(sql_drop)
+
+    sql_create = (
+        'CREATE TABLE deadline('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        'group_id INT NOT NULL,'
+        'deadline TEXT NOT NULL,'
+        'UNIQUE (group_id)'
+        ');'
+    )
+    cursor.execute(sql_create)
+
+    for value in values:
+        group_id = value[0]
+        deadline = value[1]
+
+        sql = (
+            'INSERT OR IGNORE INTO deadline VALUES (NULL, ?, ?);'
+        )
+        cursor.execute(sql, (group_id, deadline))
+
+    cursor.close()
+    coon.commit()
+    coon.close()
 
 
 @cg.command('mua', aliases=['mua', 'mua~'])
