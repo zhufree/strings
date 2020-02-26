@@ -1,6 +1,6 @@
 from nonebot import CommandSession, on_command, get_bot
 from nonebot.permission import *
-
+import asyncio
 __plugin_name__ = '遥控'
 __plugin_usage__ = r'''暂不开放'''
 
@@ -27,6 +27,7 @@ class ops:
                 group_id_list = [gid['group_id'] for gid in group_id_list]
                 for group_id in group_id_list:
                     count += 1
+                    await asyncio.sleep(1)
                     await bot.send_group_msg(group_id=group_id, message=to_send)
                 await session.send(f'正在向{count}个群发送消息')
             elif msg_type == 'all_friends':
