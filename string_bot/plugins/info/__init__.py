@@ -3,14 +3,12 @@ from nonebot import on_natural_language, NLPSession, IntentCommand
 from datetime import date, timedelta
 from jieba import posseg
 
-
 from .data_source import *
 
 __plugin_name__ = '信息'
 __plugin_usage__ = r"""信息服务
 
 指令: 历史上的今天 / 每日一句 / 新闻 / etc."""
-
 
 cg = CommandGroup('info', only_to_me=False)
 
@@ -24,6 +22,12 @@ async def info_today_in_history(session: CommandSession):
 @cg.command('one_sentence_a_day', aliases=['每日一句'])
 async def info_one_sentence_a_day(session: CommandSession):
     msg = await get_one_sentence_a_day()
+    await session.send(msg)
+
+
+@cg.command('hitokoto', aliases=['一言'])
+async def info_hitokoto(session: CommandSession):
+    msg = await get_hitokoto()
     await session.send(msg)
 
 
@@ -98,12 +102,6 @@ async def info_steam(session: CommandSession):
     await session.send(msg)
 
 
-@cg.command('steam_list', aliases=['steam_sales', 'steam促销列表', 'steam优惠列表'])
-async def info_steam(session: CommandSession):
-    msg = await get_steam_sale_list()
-    await session.send(msg)
-
-
 @cg.command('isbn', aliases=['isbn', 'isbn查询', 'ISBN', 'ISBN查询', '书号查询'])
 async def info_isbn(session: CommandSession):
     isbn = session.get('isbn', prompt='请输入要查询的书号')
@@ -122,6 +120,49 @@ async def info_steam(session: CommandSession):
 async def info_knowledge(session: CommandSession):
     msg = await get_knowledge_from_baidu()
     await session.send(msg)
+
+
+@cg.command('dec', aliases=['dec', 'bv解码'])
+async def info_dec(session: CommandSession):
+    bv = session.get('bv', prompt='请输入BV号')
+    msg = await dec(bv)
+    await session.send(str(msg))
+
+
+@cg.command('enc', aliases=['enc', 'av编码'])
+async def info_enc(session: CommandSession):
+    av = session.get('bv', prompt='请输入av号')
+    if av[:2] == 'av':
+        av = av[2:]
+    av = int(av)
+    msg = await enc(av)
+    await session.send(msg)
+
+
+@cg.command('marketing', aliases=['营销号生成器'])
+async def info_marketing(session: CommandSession):
+    subject = session.get('subject', prompt='主体是？')
+    incident = session.get('incident', prompt='事件是？')
+    another_way_of_saying = session.get('another_way_of_saying', prompt='另一种说法是？')
+    msg = await marketing_gen(subject, incident, another_way_of_saying)
+    await session.send(msg)
+
+
+@info_marketing.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+
+    if session.is_first_run:
+        if stripped_arg:
+            session.state['subject'] = stripped_arg.split()[0]
+            session.state['incident'] = stripped_arg.split()[1]
+            session.state['another_way_of_saying'] = stripped_arg.split()[2]
+        return
+
+    if not stripped_arg:
+        session.pause('什')
+
+    session.state[session.current_key] = stripped_arg
 
 
 # 垃圾分类的参数处理器
@@ -175,6 +216,36 @@ async def _(session: CommandSession):
 
     if not stripped_arg:
         session.pause('查哪个城市?')
+
+    session.state[session.current_key] = stripped_arg
+
+
+@info_dec.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+
+    if session.is_first_run:
+        if stripped_arg:
+            session.state['bv'] = stripped_arg.split()[0]
+        return
+
+    if not stripped_arg:
+        session.pause('什么?')
+
+    session.state[session.current_key] = stripped_arg
+
+
+@info_enc.args_parser
+async def _(session: CommandSession):
+    stripped_arg = session.current_arg_text.strip()
+
+    if session.is_first_run:
+        if stripped_arg:
+            session.state['av'] = stripped_arg.split()[0]
+        return
+
+    if not stripped_arg:
+        session.pause('什么?')
 
     session.state[session.current_key] = stripped_arg
 

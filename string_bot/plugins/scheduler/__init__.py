@@ -18,8 +18,6 @@ __plugin_usage__ = r"""定点报时"""
 async def _():
     bot = nonebot.get_bot()
 
-    await bot.send_private_msg(user_id=2301583973, message='"零点" 执行了')
-
     group_list = await bot.get_group_list()
     try:
         for group in group_list:
@@ -102,5 +100,5 @@ async def _():
             await bot.send_group_msg(group_id=group_id, message=f'试用期已过, 如要延期请访问 {url} 查看详情')
             try:
                 await bot.set_group_leave(group_id=group_id)
-            except ActionFailed:
-                pass
+            except ActionFailed as e:
+                bot.send_private_msg(user_id=2301583973, message=str(e))

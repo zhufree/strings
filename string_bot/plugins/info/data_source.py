@@ -5,6 +5,29 @@ from datetime import datetime
 import re
 from random import choice
 
+table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'
+tr = {}
+for i in range(58):
+    tr[table[i]] = i
+s = [11, 10, 3, 8, 4, 6, 2, 9, 5, 7]
+xor = 177451812
+add = 100618342136696320
+
+
+def _dec(x):
+    r = 0
+    for i in range(10):
+        r += tr[x[s[i]]] * 58 ** i
+    return (r - add) ^ xor
+
+
+def _enc(x):
+    x = (x ^ xor) + add
+    r = list('BV          ')
+    for i in range(10):
+        r[s[i]] = table[x // 58 ** i % 58]
+    return ''.join(r)
+
 
 async def get_today_in_history():
     dr = re.compile(r'<[^>]+>', re.S)
@@ -46,9 +69,14 @@ async def get_one_sentence_a_day():
 
 async def get_five_sayings():
     url = 'https://api.ooopn.com/yan/api.php'
-    r = requests.get(url)
+    headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+            ' AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36'
+    }
+    r = requests.get(url, headers=headers)
     response_dict = r.json()
-    return response_dict['hitokoto']
+    return response_dict['hitokoto'] + '\n    from ' + response_dict['source']
 
 
 async def get_garbage_classification(arg):
@@ -274,10 +302,33 @@ async def get_knowledge_from_baidu() -> str:
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                       'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'}
 
-    resp = requests.get(url, params, headers=header)
+    resp = requests.get(url, params, headers=header, verify=False)
 
     data = random.choice(resp.json())
 
     formatted = data['desc'] + '\n' + data['link']
 
     return formatted
+
+
+async def get_hitokoto() -> str:
+    url = 'https://api.imjad.cn/hitokoto/'
+    resp = requests.get(url)
+    return resp.text
+
+
+async def marketing_gen(subject: str, incident: str, another_way_of_saying: str) -> str:
+    return f'''    {subject}{incident}是怎么回事呢？{subject}相信大家都很熟悉，但是{subject}{incident}是怎么回事呢，下面就让小编带大家一起了解吧。
+    {subject}{incident}，其实就是{another_way_of_saying}，大家可能会很惊讶{subject}怎么会{incident}呢？但事实就是这样，小编也感到非常惊讶。
+    这就是关于{subject}{incident}的事情了，大家有什么想法呢，欢迎在评论区告诉小编一起讨论哦！'''
+
+
+async def dec(bv):
+    return _dec(bv)
+
+
+async def enc(av):
+    if isinstance(av, int):
+        return _enc(av)
+    else:
+        return

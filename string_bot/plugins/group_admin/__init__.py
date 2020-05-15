@@ -1,12 +1,15 @@
+import asyncio
+
 from nonebot import on_request, RequestSession
 from nonebot import on_notice, NoticeSession
 from .process import *
 from sql_exe import *
 from sqlite3 import OperationalError
-import datetime
 
-import asyncio
-from random import randint
+# import datetime
+#
+# import asyncio
+# from random import randint
 
 try:
     sql1 = (
@@ -90,8 +93,6 @@ async def _(session: NoticeSession):
             deadline = deadline.strftime("%Y-%m-%d")
 
             sql_exe(sql_insert2, (group_id, deadline))
-            await session.send('目前正处于试用期, 将在三天后过期, 若要延长使用时间请访问 '
-                               'https://jinser.xyz/2020/02/22/%E5%85%B3%E4%BA%8E%E6%94%B6%E8%B4%B9%E5%92%8Ctoken/ 来查看详情')
     else:
         await session.send('欢迎')
 
@@ -113,40 +114,42 @@ async def _(session: NoticeSession):
 
 @on_request('friend')
 async def _(session: RequestSession):
-    bot = session.bot
-
-    await asyncio.sleep(randint(5, 10))
-
-    await session.approve()
-
-    ctx = session.ctx.copy()
-    user_id = ctx['user_id']
-    comment = ctx['comment']
-    f_time = timestamp2string(ctx['time'])
-    if comment:
-        await bot.send_private_msg(user_id=2301583973, message=f'I am friend with 『{user_id}』, '
-                                                               f'the comment is 『{comment}』, '
-                                                               f'『{f_time}』')
-    else:
-        await bot.send_private_msg(user_id=2301583973, message=f'I am friend with 『{user_id}』,'
-                                                               f'『{f_time}』')
-    return
+    # bot = session.bot
+    #
+    # await asyncio.sleep(randint(5, 10))
+    #
+    # await session.approve()
+    #
+    # ctx = session.ctx.copy()
+    # user_id = ctx['user_id']
+    # comment = ctx['comment']
+    # f_time = timestamp2string(ctx['time'])
+    # if comment:
+    #     await bot.send_private_msg(user_id=2301583973, message=f'I am friend with 『{user_id}』, '
+    #                                                            f'the comment is 『{comment}』, '
+    #                                                            f'『{f_time}』')
+    # else:
+    #     await bot.send_private_msg(user_id=2301583973, message=f'I am friend with 『{user_id}』,'
+    #                                                            f'『{f_time}』')
+    # return
+    await session.reject()
 
 
 @on_request('group')
 async def _(session: RequestSession):
-    bot = session.bot
-    ctx = session.ctx.copy()
-    if ctx['sub_type'] == 'invite':
-
-        await asyncio.sleep(randint(5, 10))
-
-        await session.approve()
-        group_id = ctx['group_id']
-        comment = ctx['comment']
-        time = timestamp2string(ctx['time'])
-        await bot.send_private_msg(user_id=2301583973, message=f'I was invited to join the 『{group_id}』 group, '
-                                                               f'the comment is 『{comment}』, '
-                                                               f'『{time}』')
-    else:
-        return
+    # bot = session.bot
+    # ctx = session.ctx.copy()
+    # if ctx['sub_type'] == 'invite':
+    #
+    #     # await asyncio.sleep(randint(5, 10))
+    #
+    #     await session.approve()
+    #     group_id = ctx['group_id']
+    #     comment = ctx['comment']
+    #     time = timestamp2string(ctx['time'])
+    #     await bot.send_private_msg(user_id=2301583973, message=f'I was invited to join the 『{group_id}』 group, '
+    #                                                            f'the comment is 『{comment}』, '
+    #                                                            f'『{time}』')
+    # else:
+    #     return
+    await session.reject()
