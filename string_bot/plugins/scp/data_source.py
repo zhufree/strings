@@ -42,9 +42,8 @@ async def get_latest_article(page_type, page_index):
 
 async def get_scp_by_num(scp_num) -> str:
     url = f'http://scp-wiki-cn.wikidot.com/scp-{scp_num}'
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url)
-    html = pq(resp.text)
+    html = pq(url)
     page = html('#page-content')
-    msg = page.text()
-    return msg if len(msg <= 256) else ''
+    msg = page.text().replace('\n\n', '')
+    print(msg)
+    return msg if len(msg) <= 256 else msg[0:256] + f'\n更多内容请查看{url}'
