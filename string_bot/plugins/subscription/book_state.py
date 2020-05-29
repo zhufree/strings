@@ -6,7 +6,7 @@ async def get_book_info(bid):
     """
     获取book状态
     :param bid: bookid
-    :return: 0: 连载中 1: 已完结 2: 房间不存在 dict: {}
+    :return: 0: 连载中 1: 已完结 2: 不存在 dict: {}
     """
     url = f'http://www.jjwxc.net/onebook.php?novelid={bid}'
     req = requests.get(url)
@@ -30,13 +30,19 @@ async def get_book_info(bid):
         last_chapter_tr = trs[-2]
         tds = list(last_chapter_tr('td').items())
         # print(last_chapter_tr.html())
-        chapter_id = int(tds[0].text())
-        chapter_title = tds[1].text().strip()
-        chapter_desc = tds[2].text()
-        return status, {'chapter_id': chapter_id,
-                        'chapter_title': chapter_title,
-                        'chapter_desc': chapter_desc,
-                        'title': title}
+        if tds[0].text() == "章节":
+            return status, {'chapter_id': 0,
+                            'chapter_title': "尚未开始连载",
+                            'chapter_desc': "尚未开始连载",
+                            'title': title}
+        else:
+            chapter_id = int(tds[0].text())
+            chapter_title = tds[1].text().strip()
+            chapter_desc = tds[2].text()
+            return status, {'chapter_id': chapter_id,
+                            'chapter_title': chapter_title,
+                            'chapter_desc': chapter_desc,
+                            'title': title}
     else:
         return status, None
 
