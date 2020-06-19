@@ -17,7 +17,12 @@ async def get_book_info(bid):
     status = 2
     title = body('title').text()
     spans = body('span').items()
-    table = list(body('table#oneboolt').items())[0]
+    oneboolt = body('table#oneboolt')
+    table = None
+    if len(list(oneboolt.items())) == 0:
+        status = 2
+    else:
+        table = list(oneboolt.items())[0]
     for s in spans:
         if s.attr('itemprop') == 'updataStatus':
             if s.text() == '连载中':
